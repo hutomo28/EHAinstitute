@@ -1404,3 +1404,18 @@ section,
 background-color: #059652; }
 .next{ right: 10px; 
 background-color: #059652;}
+
+
+/* Responsif untuk HP */
+@media (max-width: 768px) {
+  .gallery-container {
+      width: 95vw; /* Lebar lebih besar di HP */
+      height: 50vh; /* Biar nggak terlalu tinggi */
+  }
+  
+  .nav-button {
+      padding: 10px 15px; /* Tombol lebih kecil di HP */
+      font-size: 18px;
+  }
+}
+gi
