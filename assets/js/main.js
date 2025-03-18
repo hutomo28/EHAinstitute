@@ -120,121 +120,57 @@
 
 })();
 
+
 document.addEventListener("DOMContentLoaded", () => {
   let gallery = document.getElementById("gallery");
   let images = document.querySelectorAll(".gallery img");
   let currentIndex = 0;
-  let scale = 1, moveX = 0, moveY = 0;
-  let startX, isDragging = false, dragStartX;
-
+  const totalImages = images.length;
   const prevBtn = document.getElementById("prevBtn");
   const nextBtn = document.getElementById("nextBtn");
 
-  function updateGallery() {
+  // Clone slide pertama & tambahin ke akhir
+  let firstClone = images[0].cloneNode(true);
+  gallery.appendChild(firstClone);
+
+  function updateGallery(instant = false) {
+      let transition = instant ? "none" : "transform 0.5s ease-in-out";
+      gallery.style.transition = transition;
       gallery.style.transform = `translateX(${-currentIndex * 100}%)`;
   }
 
   function nextImage() {
-      if (currentIndex < images.length - 1) {
-          currentIndex++;
-          resetZoom();
-          updateGallery();
+      currentIndex++;
+      updateGallery();
+
+      // Kalau sampai slide terakhir (clone), lompat ke awal tanpa animasi
+      if (currentIndex === totalImages) {
+          setTimeout(() => {
+              gallery.style.transition = "none";
+              currentIndex = 0;
+              updateGallery(true);
+          }, 500);
       }
   }
 
   function prevImage() {
-      if (currentIndex > 0) {
+      if (currentIndex === 0) {
+          currentIndex = totalImages;
+          updateGallery(true);
+          setTimeout(() => {
+              currentIndex--;
+              updateGallery();
+          }, 50);
+      } else {
           currentIndex--;
-          resetZoom();
           updateGallery();
       }
   }
 
-  images.forEach((img, index) => {
-      img.addEventListener("wheel", (e) => {
-          e.preventDefault();
-          if (index === currentIndex) {
-              scale += e.deltaY * -0.001;
-              scale = Math.min(Math.max(1, scale), 3);
-              img.style.transform = `scale(${scale}) translate(${moveX}px, ${moveY}px)`;
-          }
-      });
-
-      img.addEventListener("mousedown", (e) => {
-          if (scale > 1) {
-              startX = e.clientX - moveX;
-              moveY = e.clientY - moveY;
-              img.style.cursor = "grabbing";
-              document.addEventListener("mousemove", onMove);
-              document.addEventListener("mouseup", () => {
-                  img.style.cursor = "grab";
-                  document.removeEventListener("mousemove", onMove);
-              });
-          } else {
-              isDragging = true;
-              dragStartX = e.clientX;
-          }
-      });
-
-      img.addEventListener("mouseup", (e) => {
-          if (isDragging) {
-              let dragEndX = e.clientX;
-              let diff = dragStartX - dragEndX;
-              if (diff > 50) nextImage();
-              if (diff < -50) prevImage();
-              isDragging = false;
-          }
-      });
-
-      function onMove(e) {
-          moveX = e.clientX - startX;
-          img.style.transform = `scale(${scale}) translate(${moveX}px, ${moveY}px)`;
-      }
-  });
-
-  function resetZoom() {
-      scale = 1;
-      moveX = 0;
-      moveY = 0;
-      images.forEach(img => img.style.transform = "scale(1)");
-  }
-
   prevBtn.addEventListener("click", prevImage);
   nextBtn.addEventListener("click", nextImage);
+
+  // Auto-slide tiap 3 detik
+  const intervalTime = 3000;
+  setInterval(nextImage, intervalTime);
 });
-
-const gallery = document.getElementById("gallery");
-const prevBtn = document.getElementById("prevBtn");
-const nextBtn = document.getElementById("nextBtn");
-
-let currentIndex = 0; // Slide ke berapa sekarang
-const totalImages = document.querySelectorAll(".gallery img").length;
-
-function updateSlide() {
-    gallery.style.transform = `translateX(-${currentIndex * 100}%)`;
-}
-
-nextBtn.addEventListener("click", () => {
-    if (currentIndex < totalImages - 1) {
-        currentIndex++;
-        updateSlide();
-    }
-});
-
-prevBtn.addEventListener("click", () => {
-    if (currentIndex > 0) {
-        currentIndex--;
-        updateSlide();
-        
-    }
-});
-// Auto-slide setiap 3 detik
-const intervalTime = 3000; 
-setInterval(() => {
-    currentIndex++;
-    if (currentIndex >= totalImages) {
-        currentIndex = 0; // Balik ke awal kalau udah slide terakhir
-    }
-    updateSlide();
-}, intervalTime);
-
