@@ -225,5 +225,16 @@ prevBtn.addEventListener("click", () => {
     if (currentIndex > 0) {
         currentIndex--;
         updateSlide();
+        
     }
 });
+// Auto-slide setiap 3 detik
+const intervalTime = 3000; 
+setInterval(() => {
+    currentIndex++;
+    if (currentIndex >= totalImages) {
+        currentIndex = 0; // Balik ke awal kalau udah slide terakhir
+    }
+    updateSlide();
+}, intervalTime);
+
